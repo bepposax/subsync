@@ -77,13 +77,18 @@ int main(int argc, char* argv[]) {
             fprintf(edit, "%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\n",
                 sub.start->h, sub.start->m, sub.start->s, sub.start->ms,
                 sub.end->h, sub.end->m, sub.end->s, sub.end->ms);
-            // log results
+
+            //remove trailing newline from line
+#ifdef __linux__
+            line[strcspn(line, "\r\n")] = 0;
+#else
             line[strlen(line) - 1] = '\0';
-            printf("%03d\t"RED"%s"RESET" .... "
-                GREEN"%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d"RESET"\n",
-                sub.id, line,
-                sub.start->h, sub.start->m, sub.start->s, sub.start->ms,
-                sub.end->h, sub.end->m, sub.end->s, sub.end->ms);
+#endif
+            // log results
+            printf("%03d\t" RED "%s" RESET " .... " GREEN "%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d" RESET "\n",
+                sub.id, line, sub.start->h, sub.start->m, sub.start->s, sub.start->ms,
+                sub.end->h, sub.end->m, sub.end->s, sub.end->ms
+            );
         }
     }
 
