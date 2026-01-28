@@ -35,9 +35,9 @@ int main(int argc, char* argv[]) {
     // get filename and offset
     if (argc < 3) {
         printf("Subtitles file > ");
-        scanf("%s", filename);
+        while (!scanf("%s", filename));
         printf("Offset in seconds > ");
-        scanf("%f", &offset);
+        while (!scanf("%f", &offset));
     }
     else {
         strcpy(filename, argv[1]);
