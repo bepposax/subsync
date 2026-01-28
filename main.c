@@ -78,13 +78,8 @@ int main(int argc, char* argv[]) {
                 sub.start->h, sub.start->m, sub.start->s, sub.start->ms,
                 sub.end->h, sub.end->m, sub.end->s, sub.end->ms);
 
-            //remove trailing newline from line
-#ifdef __linux__
-            line[strcspn(line, "\r\n")] = 0;
-#else
-            line[strlen(line) - 1] = '\0';
-#endif
             // log results
+            line[strcspn(line, "\r\n")] = 0;
             printf("%03d\t" RED "%s" RESET " .... " GREEN "%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d" RESET "\n",
                 sub.id, line, sub.start->h, sub.start->m, sub.start->s, sub.start->ms,
                 sub.end->h, sub.end->m, sub.end->s, sub.end->ms
