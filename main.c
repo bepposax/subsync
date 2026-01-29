@@ -45,9 +45,8 @@ int main(int argc, char* argv[]) {
             fprintf(stderr, "Unable to open current directory\n");
             exit(EXIT_FAILURE);
         }
-        printf("Choose a file to sync\n"
-            "---------------------\n"
-            "ID\tFile\n");
+        printf("%-3s\tSubtitle Files\n", "ID");
+        puts("--\t--------------");
 
         while ((f = readdir(dir))) {
             if (strstr(f->d_name, ".srt")) {
@@ -55,14 +54,22 @@ int main(int argc, char* argv[]) {
                 strcpy(file[id++], f->d_name);
             }
         }
-        printf("\nFile ID > ");
-        while (!scanf("%d", &choice));
-        if (choice < 0 || choice >= id) {
-            fprintf(stderr, "Invalid choice\n");
+        puts("");
+        if (id == 0) {
+            fprintf(stderr, "No subtitle files found\n");
             exit(EXIT_FAILURE);
         }
+        if (id > 1) {
+            printf(">\tFile ID   ");
+            while (!scanf("%d", &choice));
+            if (choice < 0 || choice >= id) {
+                fprintf(stderr, "Invalid choice\n");
+                exit(EXIT_FAILURE);
+            }
+            printf("<\t%s\n\n", file[choice]);
+        }
         strcpy(filename, file[choice]);
-        printf("Offset in seconds > ");
+        printf(">\tOffset (seconds)   ");
         while (!scanf("%f", &offset));
 
         closedir(dir);
@@ -70,6 +77,10 @@ int main(int argc, char* argv[]) {
     else {
         strcpy(filename, argv[1]);
         offset = atof(argv[2]);
+    }
+    if (offset == 0) {
+        printf("No change\n");
+        return 0;
     }
     // file supported check
     if (strstr(filename, ".srt") == NULL) {
@@ -115,7 +126,12 @@ int main(int argc, char* argv[]) {
             );
         }
     }
-    printf("\nSaved in: .\\%s\n\nPress enter to exit \n", editname);
+#ifdef __linux__
+#define SLASH "/"
+#else
+#define SLASH "\\"
+#endif
+    printf("\nSaved in: ." SLASH "%s\n\nPress enter to exit \n", editname);
     fflush(stdout);
     fclose(file);
     fclose(edit);
