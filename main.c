@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #define MAXLEN 256
 #define RED    "\e[0;91m"
@@ -23,7 +24,7 @@ void addmilliseconds(timestamp_t* t, int offset);
 
 int main(int argc, char* argv[]) {
     FILE* file, * edit;
-    float offset;
+    float offset = 0;
     int offset_ms;
     char filename[MAXLEN], editname[MAXLEN], line[MAXLEN];
     timestamp_t starttime = { 0 }, endtime = { 0 };
@@ -32,12 +33,39 @@ int main(int argc, char* argv[]) {
         .end = &endtime
     };
 
+
     // get filename and offset
     if (argc < 3) {
-        printf("Subtitles file > ");
-        while (!scanf("%s", filename));
+        int id = 0, choice = 0;
+        DIR* dir;
+        struct dirent* f;
+        char file[MAXLEN][MAXLEN];
+
+        if (!(dir = opendir("."))) {
+            fprintf(stderr, "Unable to open current directory\n");
+            exit(EXIT_FAILURE);
+        }
+        printf("Choose a file to sync\n"
+            "---------------------\n"
+            "ID\tFile\n");
+
+        while ((f = readdir(dir))) {
+            if (strstr(f->d_name, ".srt")) {
+                printf("%d\t%s\n", id, f->d_name);
+                strcpy(file[id++], f->d_name);
+            }
+        }
+        printf("\nFile ID > ");
+        while (!scanf("%d", &choice));
+        if (choice < 0 || choice >= id) {
+            fprintf(stderr, "Invalid choice\n");
+            exit(EXIT_FAILURE);
+        }
+        strcpy(filename, file[choice]);
         printf("Offset in seconds > ");
         while (!scanf("%f", &offset));
+
+        closedir(dir);
     }
     else {
         strcpy(filename, argv[1]);
@@ -87,7 +115,7 @@ int main(int argc, char* argv[]) {
             );
         }
     }
-    printf("\nSaved in: .\\%s\n\nPress enter to exit ", editname);
+    printf("\nSaved in: .\\%s\n\nPress enter to exit \n", editname);
     fflush(stdout);
     fclose(file);
     fclose(edit);
