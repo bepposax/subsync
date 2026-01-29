@@ -60,6 +60,7 @@ int main(int argc, char* argv[]) {
     }
 
     offset_ms = offset * 1000;
+    setvbuf(stdout, NULL, _IOFBF, 1 << 10);
     // read input
     while (fgets(line, MAXLEN, file)) {
         if (sscanf(line, "%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d",
@@ -86,13 +87,13 @@ int main(int argc, char* argv[]) {
             );
         }
     }
-
+    printf("\nSaved in: .\\%s\n\nPress enter to exit ", editname);
+    fflush(stdout);
     fclose(file);
     fclose(edit);
+    getchar();
+    getchar();
 
-    printf("\nSaved in: .\\%s\n\nPress enter to exit ", editname);
-    getchar();
-    getchar();
     return 0;
 }
 
