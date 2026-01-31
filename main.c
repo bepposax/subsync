@@ -21,6 +21,12 @@ void addhours(timestamp_t* t, int offset);
 void addminutes(timestamp_t* t, int offset);
 void addseconds(timestamp_t* t, int offset);
 void addmilliseconds(timestamp_t* t, int offset);
+static inline void err_exit(const char* msg, int exit_value) {
+    fprintf(stderr, "%s\nPress enter to exit\n", msg);
+    getchar();
+    getchar();
+    exit(exit_value);
+};
 
 int main(int argc, char* argv[]) {
     FILE* file, * edit;
@@ -41,10 +47,7 @@ int main(int argc, char* argv[]) {
         struct dirent* f;
         char file[MAXLEN][MAXLEN];
 
-        if (!(dir = opendir("."))) {
-            fprintf(stderr, "Unable to open current directory\n");
-            exit(EXIT_FAILURE);
-        }
+        if (!(dir = opendir("."))) err_exit("Unable to open current directory", 1);
         printf("%-3s\tSubtitle Files\n", "ID");
         puts("--\t--------------");
 
@@ -55,17 +58,12 @@ int main(int argc, char* argv[]) {
             }
         }
         puts("");
-        if (id == 0) {
-            fprintf(stderr, "No subtitle files found\n");
-            exit(EXIT_FAILURE);
-        }
+        if (id == 0) err_exit("No subtitle files found", 1);
         if (id > 1) {
             printf(">\tFile ID   ");
             while (!scanf("%d", &choice));
-            if (choice < 0 || choice >= id) {
-                fprintf(stderr, "Invalid choice\n");
-                exit(EXIT_FAILURE);
-            }
+            if (choice < 0 || choice >= id)
+                err_exit("Invalid choice", 1);
             printf("<\t%s\n\n", file[choice]);
         }
         strcpy(filename, file[choice]);
@@ -78,25 +76,17 @@ int main(int argc, char* argv[]) {
         strcpy(filename, argv[1]);
         offset = atof(argv[2]);
     }
-    if (offset == 0) {
-        printf("No change\n");
-        return 0;
-    }
+    if (offset == 0)
+        err_exit("No change", 0);
     // file supported check
-    if (strstr(filename, ".srt") == NULL) {
-        fprintf(stderr, "File not supported\nSupported formats: .srt\n");
-        exit(EXIT_FAILURE);
-    }
-    if (!(file = fopen(filename, "r"))) {
-        fprintf(stderr, "Can't open file %s\n", filename);
-        exit(EXIT_FAILURE);
-    }
+    if (strstr(filename, ".srt") == NULL)
+        err_exit("File not supported\nSupported formats: .srt", 1);
+    if (!(file = fopen(filename, "r")))
+        err_exit(strcat("Can't open file ", filename), 1);
     // create edited file name
     snprintf(editname, MAXLEN, "%.*s-%.03f.srt", (int)strlen(filename) - 4, filename, offset);
-    if (!(edit = fopen(editname, "w"))) {
-        fprintf(stderr, "Can't open file %s\n", editname);
-        exit(EXIT_FAILURE);
-    }
+    if (!(edit = fopen(editname, "w")))
+        err_exit(strcat("Can't open file ", editname), 1);
 
     offset_ms = offset * 1000;
     setvbuf(stdout, NULL, _IOFBF, 1 << 10);
